@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel Sándwich Mafrico</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap">
+<style>
+/* Diseño según el Manual de Marca MAFRICO:
+   · Colores corporativos: Pantone 3005 C (azul), Cool Gray 6 C, Cool Gray 1 C, 877 C (metálico) y Black C.
+   · Tipografía: Rektorat para títulos y textos destacados (se usa Saira como sustituta web, misma construcción cuadrada),
+     Roboto para cuerpos de texto.
+   · Lenguaje visual: barra azul con el logotipo en blanco; banda inferior azul con curva, web abajo a la izquierda y
+     logotipo abajo a la derecha.
+   Diseño de un solo tema (claro), elegido a propósito para respetar la identidad. */
+:root{
+  --azul:#0077C8;        /* Pantone 3005 C */
+  --gris6:#A7A8AA;       /* Pantone Cool Gray 6 C */
+  --gris1:#D9D9D6;       /* Pantone Cool Gray 1 C */
+  --metal:#8A8D8F;       /* Pantone 877 C (acabados especiales) */
+  --negro:#2D2926;       /* Pantone Black C */
+  --fondo:#F3F1EE;       /* fondo cálido de las piezas del manual */
+  --blanco:#FFFFFF;
+  --titulo:"Rektorat","Saira","Arial Narrow",Arial,sans-serif;
+  --texto:"Roboto","Segoe UI",Arial,sans-serif;
+  color-scheme:light;
+}
+html{height:100%}
+body{min-height:100%;background:var(--fondo);color:var(--negro);font-family:var(--texto);display:flex;flex-direction:column;margin:0}
+[hidden]{display:none!important}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+/* barra superior de marca */
+.topbar{background:var(--azul);color:var(--blanco)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;padding-block:12px}
+#brandLogo{height:22px;width:auto;display:block}
+.tabs{display:flex;gap:4px}
+.tabs button{border:0;border-radius:0;background:none;color:rgba(255,255,255,.75);font:700 .82rem var(--titulo);letter-spacing:.12em;text-transform:uppercase;padding:8px 12px;border-bottom:2px solid transparent;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--blanco);border-bottom-color:var(--blanco)}
+.tabs button:focus-visible{outline:2px solid var(--blanco);outline-offset:2px}
+main{flex:1;display:flex;flex-direction:column;gap:12px;padding-block:16px 18px;min-height:0}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px}
+h1{font:800 clamp(1.15rem,2.4vw,1.6rem)/1.1 var(--titulo);text-transform:uppercase;color:var(--azul);margin:0;text-wrap:balance;letter-spacing:.01em}
+.spec{font:400 .82rem var(--texto);color:#6b6d6f}
+#view{flex:1 1 auto;height:clamp(320px,62vh,760px);overflow:hidden;position:relative;background:var(--negro)}
+#view canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;right:10px;bottom:8px;font:400 .72rem var(--texto);color:var(--gris1);background:rgba(45,41,38,.7);padding:3px 8px}
+.controls{display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center}
+.group,.btns{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.label{font:700 .7rem var(--titulo);text-transform:uppercase;letter-spacing:.14em;color:var(--metal);margin-right:6px}
+button{font:500 .84rem var(--texto);color:var(--negro);background:var(--blanco);border:1px solid var(--gris1);border-radius:2px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--gris6)}
+button[aria-pressed="true"]{background:var(--azul);border-color:var(--azul);color:var(--blanco)}
+.primary{background:var(--azul);color:var(--blanco);border-color:var(--azul);font:700 .78rem var(--titulo);letter-spacing:.1em;text-transform:uppercase;padding:9px 14px}
+.primary:hover{background:#005f9f;border-color:#005f9f}
+button:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+.custom{flex-basis:100%;align-items:flex-end;gap:10px 16px}
+.custom>.label{flex-basis:100%}
+.faces{display:flex;flex-wrap:wrap;gap:10px 18px}
+.face{display:grid;grid-template-columns:auto auto;gap:4px 6px;align-items:center}
+.face label{grid-column:1/-1;font:600 .74rem var(--texto);color:var(--negro)}
+select{font:400 .84rem var(--texto);color:var(--negro);background:var(--blanco);border:1px solid var(--gris1);border-radius:2px;padding:7px 28px 7px 10px;max-width:100%;min-width:0;appearance:none;-webkit-appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,#0077C8 50%),linear-gradient(135deg,#0077C8 50%,transparent 50%);background-position:calc(100% - 14px) 52%,calc(100% - 9px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+select:disabled{color:#6b6d6f;background-image:none;padding-right:10px}
+select:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+@media (max-width:520px){.face{grid-template-columns:1fr}.face select{width:100%}}
+#thk-range{width:180px;max-width:50vw;accent-color:var(--azul)}
+#thk-out{font:700 .85rem var(--titulo);min-width:4.5em;font-variant-numeric:tabular-nums;color:var(--azul)}
+.range-ends{font-size:.72rem;color:#6b6d6f}
+/* banda inferior de marca con la curva del lenguaje visual */
+.band{position:relative;background:var(--azul);color:var(--blanco);margin-top:28px}
+.band svg.curve{position:absolute;left:0;bottom:100%;width:120px;height:28px;display:block}
+.band .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px calc(14px + env(safe-area-inset-bottom,0px))}
+.band .web{font:400 .8rem var(--texto);letter-spacing:.02em}
+#bandLogo{height:18px;width:auto;display:block}
+
+.secondary{background:var(--blanco);color:var(--azul);border-color:var(--azul);font:700 .78rem var(--titulo);letter-spacing:.1em;text-transform:uppercase;padding:9px 14px}
+.secondary:hover{background:#e8f1f9}
+/* ficha técnica */
+#specBox{position:fixed;inset:0;z-index:30;background:rgba(45,41,38,.72);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet{background:var(--blanco);width:min(960px,100%);margin-block:24px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.sheet-head{background:var(--azul);color:var(--blanco);display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 24px;flex-wrap:wrap}
+.sheet-head .prod{display:flex;align-items:center;gap:10px}
+#specLogo{height:30px;width:auto;display:block}
+.sheet-head .by{font:400 .72rem var(--texto);opacity:.9;display:flex;align-items:center;gap:8px}
+#specBy{height:12px;width:auto}
+.sheet-close{background:transparent;color:var(--blanco);border:1px solid rgba(255,255,255,.7);font:700 .72rem var(--titulo);letter-spacing:.1em;text-transform:uppercase}
+.sheet-close:hover{background:rgba(255,255,255,.12)}
+.sheet-body{padding:22px 24px 8px;display:flex;flex-direction:column;gap:22px}
+.sheet-body p.desc{margin:0;font:300 1rem/1.55 var(--texto);max-width:70ch}
+.sheet h2{font:800 1rem var(--titulo);text-transform:uppercase;letter-spacing:.06em;color:var(--azul);margin:0 0 10px}
+.sheet h3{font:700 .8rem var(--titulo);text-transform:uppercase;letter-spacing:.1em;color:var(--negro);margin:0 0 8px}
+.tbl{overflow-x:auto;border:1px solid var(--gris1)}
+.tbl table{border-collapse:collapse;width:100%;min-width:560px;font:400 .85rem var(--texto);font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--gris1);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left;color:#555;font-weight:500;position:sticky;left:0;background:var(--blanco)}
+.tbl thead th{background:#f6f5f3;font:700 .78rem var(--titulo);letter-spacing:.06em;color:var(--negro)}
+.tbl thead th:first-child{background:#f6f5f3}
+.tbl .on{background:#e5f0f9;color:var(--azul);font-weight:700}
+.tbl tr:last-child td{border-bottom:0}
+.kv{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:6px 16px;font:400 .88rem/1.45 var(--texto);margin:0}
+.kv dt{color:#555;font-weight:500}.kv dd{margin:0}
+.grid2{display:flex;flex-direction:column;gap:24px}
+.finishes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.finish{border-top:3px solid var(--azul);background:#f6f5f3;padding:12px 14px}
+.finish b{display:block;font:700 .82rem var(--titulo);letter-spacing:.04em;margin-bottom:4px}
+.finish span{font:400 .84rem/1.45 var(--texto);color:#444}
+.note{font:400 .76rem var(--texto);color:#6b6d6f;margin:0}
+.sheet-foot{background:var(--negro);color:var(--gris1);display:flex;justify-content:space-between;align-items:center;gap:8px 20px;flex-wrap:wrap;padding:14px 24px;font:400 .8rem var(--texto);margin-top:14px}
+.sheet-foot b{color:var(--blanco);font-weight:500}
+@media (max-width:520px){.kv{grid-template-columns:1fr}.kv dt{margin-top:6px}}
+.notice{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;background:#eaf3fa;border-left:4px solid var(--azul);padding:10px 14px}
+.notice p{margin:0;flex:1 1 260px;font:400 .86rem/1.45 var(--texto);color:#2D2926}
+#shotBox{position:fixed;inset:0;background:rgba(45,41,38,.88);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-left,0px));z-index:20}
+.shotInner{display:flex;flex-direction:column;gap:10px;max-width:100%}
+#shotImg{max-width:100%;max-height:78vh}
+.shotBar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;color:var(--blanco);font-size:.85rem}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <canvas id="brandLogo" width="320" height="44" role="img" aria-label="MAFRICO"></canvas>
+    <nav class="tabs" role="tablist" aria-label="Producto">
+      <button role="tab" id="tab-panel" data-p="panel" aria-selected="true">Paneles</button>
+      <button role="tab" id="tab-roof" data-p="roof" aria-selected="false">Cubierta</button>
+    </nav>
+  </div>
+</div>
+<main class="wrap">
+  <header>
+    <h1 id="ttl">Panel sándwich de pared · RAL 9010 tableteado</h1>
+    <span class="spec" id="spec"></span>
+  </header>
+  <div id="view"><span class="hint">Arrastra para girar en cualquier dirección (también por debajo) · rueda para acercar</span></div>
+  <div class="controls">
+    <div class="group custom" role="group" aria-labelledby="custLabel"><span class="label" id="custLabel">Personaliza tu panel</span><div class="faces" id="fin"></div><button id="flipBtn" class="secondary">Ver cara interior</button></div>
+    <div class="group" role="group" aria-label="Espesor"><span class="label">Espesor</span><span class="btns" id="thk"></span></div>
+    <div class="group" role="group" aria-label="Vista"><span class="label">Vista</span><span class="btns" id="vw"></span></div>
+    <div class="group notice" id="prfvNote" hidden><p><b>Unión con PRFV:</b> Para la unión entre paneles con acabado en PRFV, se utiliza el <b>Perfil Barra División de PVC</b> (perfil H).</p><button id="prfvSim" class="secondary">Ver cómo se encaja</button></div>
+    <div class="group" id="joinGroup" hidden><button id="joinBtn" class="primary">Encaje</button></div>
+    <div class="group"><button id="specBtn" class="secondary">Ficha técnica</button><button id="shot" class="primary">Crear imagen de catálogo</button></div>
+  </div>
+</main>
+<footer class="band">
+  <svg class="curve" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 C 10 0 18 6 26 14 C 34 22 42 28 56 28 L 0 28 Z" fill="#0077C8"/></svg>
+  <div class="wrap">
+    <span class="web">www.mafrico.com</span>
+    <canvas id="bandLogo" width="260" height="36" role="img" aria-label="MAFRICO"></canvas>
+  </div>
+</footer>
+<div id="specBox" hidden role="dialog" aria-modal="true" aria-labelledby="specTitle">
+  <article class="sheet">
+    <div class="sheet-head">
+      <div class="prod"><canvas id="specLogo" role="img"></canvas></div>
+      <div class="by">Un producto de <canvas id="specBy" role="img" aria-label="MAFRICO"></canvas></div>
+      <button class="sheet-close" id="specClose">Cerrar</button>
+    </div>
+    <div class="sheet-body" id="specBody"></div>
+    <div class="sheet-foot"><span><b>MAFRICO</b> · Km. 16.5 Vía a Daule, Guayaquil, Ecuador</span><span>(593-4) 2162398-9 · 2162495 · 6002088-9</span></div>
+  </article>
+</div>
+<div id="shotBox" hidden>
+  <div class="shotInner">
+    <img id="shotImg" alt="Imagen de catálogo">
+    <div class="shotBar"><span>Clic derecho (o mantén presionado en el celular) sobre la imagen y elige “Guardar imagen”.</span><button id="shotClose">Cerrar</button></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/environments/RoomEnvironment.js"></script>
+<script>
+const L=1500, SHEET=0.8, PW=1160, RW=1000, RH=40;
+/* Acabados y calibres según las fichas técnicas 2024. tab = lámina con efecto tableteado. */
+const FIN={
+  ral: {lab:'Acero galvanizado prepintado blanco RAL 9010',short:'Prepintado blanco RAL 9010',cal:[.40,.45,.50,.60],tab:true},
+  prfv:{lab:'PRFV (poliéster reforzado con fibra de vidrio) blanco RAL 9010',short:'PRFV blanco RAL 9010',cal:[2.00],tab:false},
+  i304:{lab:'Acero inoxidable AISI 304',short:'Acero inox AISI 304',cal:[.50],tab:true},
+  i430:{lab:'Acero inoxidable AISI 430',short:'Acero inox AISI 430',cal:[.50],tab:true},
+  ralr:{lab:'Acero galvanizado prepintado blanco RAL 9010',short:'Prepintado blanco RAL 9010',cal:[.40,.45,.50,.60],tab:true},
+  galv:{lab:'Acero galvanizado natural',short:'Galvanizado natural',cal:[.40,.45,.50,.60],tab:true}
+};
+const PRODUCTS={
+  panel:{name:"Panel sándwich de pared MAFRIWALL",what:"panel",
+    faces:[{lab:'Lámina 1 · cara exterior',short:'Exterior',opts:['ral','prfv','i304','i430']},
+           {lab:'Lámina 2 · cara interior',short:'Interior',opts:['ral','prfv','i304','i430']}],
+    thick:[40,50,60,70,80,90,100,125,150],   /* de 10 en 10 hasta 100 mm; después 125 y 150 mm */
+    views:{cat:"Catálogo",cut:"Corte de frente",macho:"Macho",hembra:"Hembra",union:"Unión de 2 paneles"},
+    spec:t=>`Núcleo PUR ${t} mm · ${prfvBoth()?'borde recto, unión con perfil H':straight()?'machihembrado + perfil H en la cara de PRFV':'machihembrado'} · 1160 mm útiles`},
+  roof:{name:"Panel sándwich de cubierta MAFRITECH",what:"cubierta",
+    faces:[{lab:'Lámina superior · ondulada',short:'Superior',opts:['ralr','galv']},
+           {lab:'Lámina inferior · recta tableteada',short:'Inferior',opts:['ralr','galv']}],
+    thick:[30,40,50,60,70,80,90,100,125],   /* de 10 en 10 hasta 100 mm; después 125 mm */
+    views:{cat:"Catálogo",cut:"Corte de frente",traslape:"Traslape",union:"Unión de 2 cubiertas"},
+    spec:t=>`Núcleo PUR ${t} mm + greca ${RH} mm · traslape · 1000 mm útiles`}
+};
+const sel={panel:{faces:[{f:'ral',c:.50},{f:'ral',c:.50}],t:50},roof:{faces:[{f:'galv',c:.50},{f:'ralr',c:.40}],t:40}};
+let product="panel", T=50, curView="cat", flipT=0, flipTarget=0;
+const faces=()=>sel[product].faces;
+
+const view=document.getElementById('view');
+/* logarithmicDepthBuffer: evita las rayitas por superficies muy juntas (cinta sobre poliuretano, lámina sobre núcleo) al acercarse */
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,logarithmicDepthBuffer:true});
+const MAXANI=renderer.capabilities.getMaxAnisotropy();
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+view.prepend(renderer.domElement);
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x2D2926);   /* Pantone Black C */
+const pm=new THREE.PMREMGenerator(renderer);
+scene.environment=pm.fromScene(new THREE.RoomEnvironment(),0.04).texture;
+
+const cam=new THREE.PerspectiveCamera(30,1,5,30000);
+const controls=new THREE.OrbitControls(cam,renderer.domElement);
+/* giro libre con el mouse o el dedo: se puede ir por encima y por debajo del panel para ver ambas caras */
+controls.enableDamping=true; controls.minPolarAngle=0.01; controls.maxPolarAngle=Math.PI-0.01; controls.rotateSpeed=0.9;
+
+scene.add(new THREE.HemisphereLight(0xffffff,0xd8d8d8,0.25));
+/* luz suave desde abajo para que la cara inferior se vea bien al girar por debajo */
+const under=new THREE.DirectionalLight(0xffffff,0.55);under.position.set(900,-1600,700);scene.add(under);
+const sun=new THREE.DirectionalLight(0xffffff,1.35);
+sun.position.set(-1700,1100,900); sun.castShadow=true;
+sun.shadow.mapSize.set(4096,4096);
+Object.assign(sun.shadow.camera,{left:-1600,right:1600,top:1600,bottom:-1600,near:100,far:5000});
+/* bias + normalBias: quitan el “acné de sombra” (franjas que aparecen al hacer zoom) */
+sun.shadow.bias=-0.0002; sun.shadow.normalBias=2.5; sun.shadow.radius=3; sun.target.position.set(0,0,-L/2);
+scene.add(sun,sun.target);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(20000,20000),new THREE.ShadowMaterial({opacity:0.45}));
+ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground);
+
+/* ---------- texturas ---------- */
+function canvasTex(w,h,draw,rx,ry){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  draw(c.getContext('2d'),w,h);
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.repeat.set(rx,ry); t.anisotropy=MAXANI; t.encoding=THREE.sRGBEncoding; return t;
+}
+function rnd(s){return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646}}
+/* poliuretano: tono ocre claro, grano fino, vetas horizontales suaves y poros */
+function foamDraw(g,w,h,bump){
+  const r=rnd(7);
+  g.fillStyle=bump?"#808080":"#d4b47c";g.fillRect(0,0,w,h);
+  for(let i=0;i<60;i++){const y=r()*h,hh=4+r()*30;g.fillStyle=bump?`rgba(${r()>.5?255:0},${r()>.5?255:0},${r()>.5?255:0},.03)`:(r()>.5?`rgba(255,240,205,${.05+.07*r()})`:`rgba(150,110,55,${.04+.06*r()})`);g.fillRect(0,y,w,hh);}
+  for(let i=0;i<26000;i++){const v=r(),x=r()*w,y=r()*h,s=.6+r()*1.8;
+    g.fillStyle=bump?(v<.5?`rgba(255,255,255,${.35*r()})`:`rgba(0,0,0,${.35*r()})`):(v<.5?`rgba(255,246,220,${.22*r()})`:`rgba(120,85,40,${.2*r()})`);g.fillRect(x,y,s*(1+r()*2),s);}
+  for(let i=0;i<420;i++){g.fillStyle=bump?`rgba(0,0,0,${.5+.4*r()})`:`rgba(105,75,35,${.35+.35*r()})`;g.beginPath();g.ellipse(r()*w,r()*h,.6+r()*1.6,.5+r()*1.1,0,0,7);g.fill()}
+}
+const foamTex=canvasTex(1024,1024,(g,w,h)=>foamDraw(g,w,h,false),1/90,1/90);
+const foamBump=canvasTex(1024,1024,(g,w,h)=>foamDraw(g,w,h,true),1/90,1/90); foamBump.encoding=THREE.LinearEncoding;
+/* galvanizado: flor de zinc (cristales irregulares en distintos tonos de gris) */
+const galvTex=canvasTex(1024,1024,(g,w,h)=>{
+  g.fillStyle="#b9bec3";g.fillRect(0,0,w,h);const r=rnd(5);
+  for(let i=0;i<1400;i++){
+    const x=r()*w,y=r()*h,s=10+r()*42,v=Math.round(140+r()*95);
+    g.fillStyle=`rgba(${v},${v+3},${v+7},.6)`;g.beginPath();
+    const n=5+Math.floor(r()*3);
+    for(let k=0;k<n;k++){const a=k/n*6.283+r()*.6,rr=s*(.55+r()*.6),px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;k?g.lineTo(px,py):g.moveTo(px,py)}
+    g.closePath();g.fill();
+  }
+  for(let i=0;i<14000;i++){g.fillStyle=`rgba(255,255,255,${.07*r()})`;g.fillRect(r()*w,r()*h,1,1)}
+},1/320,1/320);
+/* acero inoxidable: liso con líneas finas de satinado a lo largo del panel (según las muestras 304 y 430) */
+function brushed(base,lines,alpha,maxW,patches,seed){
+  return canvasTex(1024,1024,(g,w,h)=>{
+    g.fillStyle=base;g.fillRect(0,0,w,h);const r=rnd(seed);
+    for(let i=0;i<patches;i++){const y=r()*h,hh=60+r()*220,gr=g.createLinearGradient(0,y,0,y+hh);
+      gr.addColorStop(0,'rgba(255,255,255,0)');gr.addColorStop(.5,`rgba(255,255,255,${.03+.04*r()})`);gr.addColorStop(1,'rgba(255,255,255,0)');
+      g.fillStyle=gr;g.fillRect(0,y,w,hh);}
+    for(let i=0;i<lines;i++){const x=r()*w,l=r()>.5;
+      g.fillStyle=l?`rgba(255,255,255,${alpha*r()})`:`rgba(30,32,35,${alpha*r()})`;
+      g.fillRect(x,0,.5+r()*maxW,h);}
+  },1/250,1/700);
+}
+const tex304=brushed('#adb0b2',3000,.05,.6,0,11);
+const tex430=brushed('#969ba1',3400,.09,1,6,31);
+
+function sheetMat(finish){
+  switch(finish){
+    case "ral":  return new THREE.MeshPhysicalMaterial({color:0xf1ede3,roughness:.42,metalness:0,clearcoat:.25,clearcoatRoughness:.4});
+    case "ralr": return new THREE.MeshPhysicalMaterial({color:0xf2efe6,roughness:.3,metalness:0,clearcoat:.5,clearcoatRoughness:.25});
+    case "prfv": return new THREE.MeshPhysicalMaterial({color:0xf3f2ec,roughness:.12,metalness:0,clearcoat:1,clearcoatRoughness:.04});
+    case "i304": return new THREE.MeshStandardMaterial({map:tex304,color:0xffffff,metalness:.7,roughness:.38,envMapIntensity:.8});
+    case "i430": return new THREE.MeshStandardMaterial({map:tex430,color:0xffffff,metalness:.75,roughness:.42,envMapIntensity:.7});
+    case "galv": return new THREE.MeshStandardMaterial({map:galvTex,color:0xffffff,metalness:.85,roughness:.38});
+  }
+}
+const foamMat=new THREE.MeshStandardMaterial({map:foamTex,bumpMap:foamBump,bumpScale:.6,roughness:.95,metalness:0,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
+
+/* ---------- utilidades de perfil (mm). x: ancho, y: espesor, extruido a lo largo ---------- */
+function mirror(p){return p.map(([x,y])=>[x,T-y])}
+function strip(pts,t){
+  const out=[],inn=[];
+  for(let i=0;i<pts.length;i++){
+    const a=pts[Math.max(0,i-1)],b=pts[i],c=pts[Math.min(pts.length-1,i+1)];
+    let n1=[-(b[1]-a[1]),b[0]-a[0]],n2=[-(c[1]-b[1]),c[0]-b[0]];
+    const nl=v=>{const l=Math.hypot(v[0],v[1])||1;return[v[0]/l,v[1]/l]};
+    n1=i===0?nl(n2):nl(n1);n2=i===pts.length-1?n1:nl(n2);
+    let n=nl([n1[0]+n2[0],n1[1]+n2[1]]);const d=Math.max(.5,n[0]*n1[0]+n[1]*n1[1]);
+    out.push([b[0]+n[0]*t/d,b[1]+n[1]*t/d]);inn.push(b);
+  }
+  return inn.concat(out.reverse());
+}
+function shapeOf(poly){const s=new THREE.Shape();poly.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();return s}
+function extrude(poly,mat,cx){
+  const g=new THREE.ExtrudeGeometry(shapeOf(poly),{depth:L,bevelEnabled:false,curveSegments:1});
+  g.translate(-cx,0,-L);
+  const m=new THREE.Mesh(g,mat);m.castShadow=true;m.receiveShadow=true;return m;
+}
+
+/* ---------- PANEL DE PARED (machihembrado) ----------
+   Hembra (izquierda): hombro en cada cara, dedo relleno de poliuretano que sobresale, centro rehundido.
+   Macho (derecha): hombro en cada cara, ranura en U hacia adentro, lengüeta central ancha que sobresale. */
+/* Medidas del machihembrado (fracciones del espesor T), según el corte de referencia:
+   JA/JB: la ranura y el dedo van entre JA y JB desde cada cara; JL: fondo de la ranura medido desde la cara;
+   JC: cuánto se rehunde el centro del macho (y sobresale el de la hembra); JCH: chaflán de las caras. */
+const JA=.18, JB=.33, JL=.36, JC=.13, JCH=.045, GAP=2*SHEET+.2;
+/* Radio de las esquinas de las caras (narices redondeadas, como en la foto real). */
+/* Producción: el perfil del encaje (curvas, dedos y ranuras) es siempre el mismo, tomado del panel de 40 mm.
+   Al aumentar el espesor solo crece el tramo central entre los dos dedos. */
+const JT=40;
+const jface=()=>Math.min(6,.11*JT);
+/* Redondea las esquinas de un perfil: R[i] es el radio (mm) en el punto i; se limita para no pisar las esquinas vecinas. */
+function fillet(p,R){
+  const o=[];
+  for(let i=0;i<p.length;i++){
+    const r=R[i]||0;
+    if(!r||i===0||i===p.length-1){o.push(p[i]);continue}
+    const A=p[i-1],B=p[i],C=p[i+1];
+    const l1=Math.hypot(A[0]-B[0],A[1]-B[1]),l2=Math.hypot(C[0]-B[0],C[1]-B[1]);
+    const rr=Math.min(r,.48*l1,.48*l2);
+    const P=[B[0]+(A[0]-B[0])/l1*rr,B[1]+(A[1]-B[1])/l1*rr],Q=[B[0]+(C[0]-B[0])/l2*rr,B[1]+(C[1]-B[1])/l2*rr];
+    for(let k=0;k<=8;k++){const t=k/8,m=1-t;o.push([m*m*P[0]+2*m*t*B[0]+t*t*Q[0],m*m*P[1]+2*m*t*B[1]+t*t*Q[1]]);}
+  }
+  return o;
+}
+/* Profundidad real del encaje: 15 mm (no crece con el espesor del panel). */
+const JMAX=15;
+const jL=()=>Math.min(JMAX,JL*JT), jc=()=>jL()*JC/JL, jch=()=>Math.min(2.2,JCH*T), jrr=()=>Math.min(1.5,.03*T);
+function femaleTop(){
+  const s=JT,S=SHEET,a=JA*s,b=JB*s,Lf=jL()+.2,xc=-jc()-2*S;
+  const p=[[xc,T-b+2*S],[-Lf,T-b+2*S],[-Lf,T-a-2*S],[0,T-a-2*S],[0,T]];
+  return fillet(p,[0,4,4,3,0]);
+}
+function maleTop(){
+  const s=JT,a=JA*s,b=JB*s,L=jL(),c=jc();
+  const p=[[PW,T],[PW,T-a],[PW-L,T-a],[PW-L,T-b],[PW-c,T-b]];
+  return fillet(p,[0,3,4,4,0]);
+}
+function panelTopRun(finish){
+  const p=[[8,T]];
+  if(FIN[finish].tab){
+    const n=11;
+    for(let k=1;k<n;k++){const g=PW*k/n; if(g>PW-30)break;
+      p.push([g-9,T],[g-3,T-2],[g+3,T-2],[g+9,T]);}
+  }
+  p.push([PW-8,T]);
+  return p;
+}
+/* ---------- PRFV: no se puede doblar → sin machihembrado ----------
+   Bordes rectos; la lámina de PRFV sigue recta y sobresale OV mm. Dos paneles se unen con el
+   Perfil Barra División PVC (perfil H): las láminas de PRFV entran en las ranuras del perfil. */
+const OV=4, HW=2, HG=2*OV+HW;                 /* sobresale de lámina, alma del perfil, separación entre núcleos */
+const straight=()=>product==="panel"&&faces().some(F=>F.f==='prfv');
+const prfvBoth=()=>product==="panel"&&faces().every(F=>F.f==='prfv');
+const hMat=new THREE.MeshStandardMaterial({color:0xf5f5f3,roughness:.33,metalness:0});
+/* Los núcleos llegan hasta la línea de unión (xL/xR): al encajar quedan bien pegaditos.
+   Bajo la lámina de PRFV, el ala inferior del perfil H se mete en la espuma (rebaje fino en el borde). */
+const HN=OV+HW/2-.4+.1, HD=1.3;              /* ancho y profundidad del rebaje donde entra el ala */
+function facePaths(F){
+  const xL=-HG/2, xR=PW+HG/2;
+  if(F.f==='prfv')return{foam:[[xL,T-HD],[xL+HN,T-HD],[xL+HN,T],[xR-HN,T],[xR-HN,T-HD],[xR,T-HD]],sheet:[[-OV,T],[PW+OV,T]]};
+  /* lámina metálica: recta y doblada en los bordes */
+  const pts=[[xL,T-8],[xL,T],...panelTopRun(F.f),[xR,T],[xR,T-8]],R=[];R[1]=3;R[pts.length-2]=3;
+  const p=fillet(pts,R);return{foam:p,sheet:p};
+}
+let JX1=0, JJ=0;   /* posición del segundo panel ya unido y de la línea de unión (perfil H) */
+/* Una cara PRFV y la otra metálica: la cara metálica conserva su mitad del machihembrado
+   (dedo en la hembra, ranura en el macho); del lado del PRFV el borde es recto y lleva perfil H. */
+function buildPanelMixed(group){
+  const fs=faces(), ip=fs[0].f==='prfv'?0:1, Fp=fs[ip], Fm=fs[1-ip];
+  const fem=femaleTop(), male=maleTop(), run=panelTopRun(Fm.f);
+  const R=Object.assign([],{[fem.length-1]:jface(),[fem.length+run.length]:jface()});
+  const up=fillet(fem.concat(run,male),R);
+  const xc=up[0][0], xm=up[up.length-1][0], Xj=(xm+PW+GAP+xc)/2;
+  const foam=up.concat([[xm,HD],[xm-HN,HD],[xm-HN,0],[xc+HN,0],[xc+HN,HD],[xc,HD]]);
+  const sh=[[Xj+HW/2-(PW+GAP),0],[Xj-HW/2,0]];
+  let polys=[[foam,foamMat],[strip(up,Fm.c),sheetMat(Fm.f)],[strip(sh,-Fp.c),sheetMat(Fp.f)]];
+  if(ip===0)polys=polys.map(([p,m])=>[mirror(p),m]);   /* PRFV arriba: se voltea el corte */
+  polys.forEach(([p,m],k)=>{const o=extrude(p,m,PW/2);if(k)o.receiveShadow=false;group.add(o);});
+  JX1=PW+GAP; JJ=Xj-PW/2;
+}
+function buildPanelStraight(group){
+  JX1=PW+HG; JJ=(PW+HG)/2;
+  const [F1,F2]=faces(), a=facePaths(F1), b=facePaths(F2);
+  group.add(extrude(a.foam.concat(mirror(b.foam).reverse()),foamMat,PW/2));
+  const s1=extrude(strip(a.sheet,F1.c),sheetMat(F1.f),PW/2), s2=extrude(strip(mirror(b.sheet),-F2.c),sheetMat(F2.f),PW/2);
+  s1.receiveShadow=false; s2.receiveShadow=false; group.add(s1); group.add(s2);
+}
+/* Perfil H (corte): tapa ancha por fuera, alma central entre las dos láminas y ala inferior que las sujeta por debajo */
+function hPoly(c){
+  const w=HW/2,B=OV+w-.4,A=19,tc=1.4,tf=1.2,y=T-.05,yc=T+c+.05;
+  return[[-w,y],[-B,y],[-B,y-tf],[B,y-tf],[B,y],[w,y],[w,yc],[A,yc],[A-.6,yc+tc*.7],[A-4,yc+tc],[-A+4,yc+tc],[-A+.6,yc+tc*.7],[-A,yc],[-w,yc]];
+}
+function buildH(){
+  hgrp.children.forEach(o=>o.geometry.dispose()); hgrp.clear();
+  if(!straight())return;
+  faces().forEach((F,i)=>{if(F.f!=='prfv')return;const m=extrude(i?mirror(hPoly(F.c)):hPoly(F.c),hMat,0);m.receiveShadow=false;hgrp.add(m);});
+}
+function buildPanel(group){
+  if(prfvBoth())return buildPanelStraight(group);
+  if(straight())return buildPanelMixed(group);
+  const [F1,F2]=faces();
+  const fem=femaleTop(), male=maleTop(), run=panelTopRun(F1.f), run2=panelTopRun(F2.f);
+  const R=n=>Object.assign([],{[fem.length-1]:jface(),[fem.length+n]:jface()});
+  const up=fillet(fem.concat(run,male),R(run.length));
+  const lo=fillet(fem.concat(run2,male),R(run2.length));   /* cara inferior con su propio tableteado */
+  /* Centro curvo y sutil: el del macho sobresale en arco y el de la hembra se hunde con el mismo arco. */
+  const sag=-Math.min(1,.2*jc());
+  const arc=(P,Q)=>{const o=[];for(let k=1;k<16;k++){const t=k/16;o.push([P[0]+(Q[0]-P[0])*t-sag*Math.sin(Math.PI*t),P[1]+(Q[1]-P[1])*t]);}return o;};
+  const dn=mirror(lo).reverse();
+  const foam=up.concat(arc(up[up.length-1],dn[0]),dn,arc(dn[dn.length-1],up[0]));
+  group.add(extrude(foam,foamMat,PW/2));
+  /* espesor visible de cada lámina = su calibre */
+  /* las láminas no reciben sombra propia: así el dedo y la ranura de abajo se ven igual de limpios que los de arriba */
+  const s1=extrude(strip(up,F1.c),sheetMat(F1.f),PW/2), s2=extrude(strip(mirror(lo),-F2.c),sheetMat(F2.f),PW/2);
+  s1.receiveShadow=false; s2.receiveShadow=false;
+  group.add(s1); group.add(s2);
+}
+
+/* ---------- CUBIERTA (traslape) ----------
+   Según la foto de dos cubiertas unidas:
+   · Lámina superior trapezoidal: 3 grecas cada 333 mm con 2 nervios pequeños en cada valle.
+   · Extremo derecho (recibe el traslape): la última greca va llena de poliuretano; su flanco exterior es inclinado
+     hasta el nivel del valle y desde ahí el lateral baja recto hasta abajo. La lámina superior termina en la
+     esquina de la cima. Cara lateral con cinta MAFRICO. Abajo, la lámina hace un pequeño doblez en la esquina y
+     sale como pestaña plana que pasa por debajo del vecino.
+   · Extremo izquierdo (hace el traslape): el poliuretano termina en una cara recta y la lámina superior sigue sola
+     como ala: sube por el flanco inclinado de la greca del vecino y dobla un poco sobre su cima.
+   · La línea oscura marca el borde del ala: es la unión visible entre cubiertas. */
+const RTB=40, RTT=12.5, RLIP=7;   /* medio ancho de greca en base y cima; doblez del ala sobre la cima */
+/* Encaje inferior de cubierta (medida fija, no depende del espesor): una sola ranura/dedo muy fino cerca de la cara inferior */
+const RJA=3, RJB=9, RJL=10;      /* la ranura va de RJA a RJB mm sobre la cara inferior y entra RJL mm */
+function roofTopSheet(){
+  const t=T,h=RH,p=RW/3,S=SHEET,fx=RTB-RTT;        /* fx: avance horizontal del flanco */
+  /* ala: sube por el flanco de la greca del vecino (que termina en x=0) y dobla sobre su cima */
+  /* el ala va un espesor de lámina por encima de la lámina que cubre la greca del vecino */
+  /* el ala forma la onda completa: sube por un flanco, cruza la cima y baja por el otro hasta el valle del vecino */
+  const pts=[[-2*RTB-.6,t+S],[-RTB-RTT-.4,t+h+S],[-fx+.4,t+h+S],[1,t+S],[2,t]];
+  for(let c=2;c>=0;c--){
+    const cx=RW-RTB-c*p;                           /* centros de greca; la última queda pegada al borde derecho */
+    const v0=cx-p+RTB, v1=cx-RTB;                   /* valle antes de esta greca */
+    for(const f of [1/3,2/3]){const rx=v0+(v1-v0)*f;if(rx-14>2)pts.push([rx-14,t],[rx-8,t+5],[rx+8,t+5],[rx+14,t]);}
+    pts.push([cx-RTB,t],[cx-RTT,t+h],[cx+RTT,t+h]);
+    if(c>0)pts.push([cx+RTB,t]);
+  }
+  pts.push([RW,t],[RW,t-1.5]);                       /* la lámina cubre todo el flanco exterior hasta donde empieza la cinta */
+  return pts;
+}
+function roofJoint(){
+  const S=SHEET,Lf=RJL-2*S-.2;
+  /* hembra en el extremo izquierdo (dedo), macho en el derecho (ranura en U); esquinas redondeadas */
+  const fem=fillet([[0,T],[0,RJB-2*S],[-Lf,RJB-2*S],[-Lf,RJA+2*S],[0,RJA+2*S],[0,0]],[0,.8,9,9,.8,0]);   /* punta del dedo redonda (U) */
+  const male=fillet([[RW,T],[RW,RJB],[RW-RJL,RJB],[RW-RJL,RJA],[RW,RJA],[RW,0]],[0,.8,9,9,.8,0]);   /* fondo de la ranura redondo (U) */
+  return{fem,male};
+}
+function buildRoof(group){
+  const cx=RW/2, S=SHEET, fx=RTB-RTT;
+  const tp=roofTopSheet(), {fem,male}=roofJoint();
+  /* poliuretano: lado izquierdo con el dedo del encaje; a la derecha, flanco inclinado de la greca llena, lateral recto y ranura */
+  const body=tp.filter(([x,y])=>x>=1.5&&x<RW-1);
+  const [F1,F2]=faces();
+  /* cara inferior recta con efecto tableteado (líneas suaves a lo largo) */
+  const grooves=[];for(let k=1;k<11;k++){const g=RW*k/11;grooves.push([g-9,0],[g-3,2],[g+3,2],[g+9,0]);}
+  const foam=[...fem.slice().reverse(),...body,...male,...grooves.slice().reverse()];
+  group.add(extrude(foam,foamMat,cx));
+  group.add(extrude(strip(tp,F1.c),sheetMat(F1.f),cx));
+  /* lámina inferior: envuelve el dedo, recorre la cara inferior tableteada y forra la ranura */
+  const fi=fem.findIndex(([x,y])=>x===0&&y===RJB-2*S);
+  const bot=[...fem.slice(fi>=0?fi:1),...grooves,[RW,0],...male.slice().reverse().slice(1,male.length-1)];
+  group.add(extrude(strip(bot,-F2.c),sheetMat(F2.f),cx));
+  /* línea de unión en el borde del ala (sobre la cima de la greca del vecino) */
+  const seam=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.7,L),new THREE.MeshStandardMaterial({color:0x3b3f44,roughness:.8}));
+  seam.position.set(-2*RTB-1.2-cx,T+S+.4,-L/2);group.add(seam);
+  /* cinta MAFRICO en los laterales (por encima del encaje) */
+  const tm=tapeMat();
+  group.add(tapeSeg(tm,RW-cx,RJB+.5,RW-cx,T-1.6,+1));
+  group.add(tapeSeg(tm,-cx,RJB+.5,-cx,T-.2,-1));
+}
+/* Cinta crema con “MAFRICO” en azul petróleo repetido a lo largo, como en los paneles reales. */
+const TAPE_TILE=230;
+/* Logotipo oficial MAFRICO: trazos vectoriales tomados del Manual de Marca (página "Usos correctos").
+   Unidades del manual: ancho 198.043, alto 24.035. No se redibuja, se usa tal cual. */
+const LOGO_W=198.043, LOGO_H=24.035, WORD_W=LOGO_W/LOGO_H, LOGO_COLOR='#0077C8';   /* Pantone 3005 C */
+const MAFRI_W=139.6;   /* ancho de "MAFRI" para las submarcas (MAFRIWALL, MAFRITECH) */
+const LOGO_PATH=new Path2D("M 11.020 0.023 L 0.000 0.023 L 0.000 24.035 L 6.434 24.035 L 6.434 6.457 L 11.535 6.457 C 12.148 6.457 12.645 6.957 12.645 7.570 L 12.645 24.035 L 19.121 24.035 L 19.129 6.445 L 14.477 1.512 C 13.578 0.562 12.328 0.023 11.020 0.023 M 19.133 0.023 L 28.000 0.023 C 30.090 0.023 31.781 1.715 31.781 3.805 L 31.781 24.035 L 25.344 24.035 L 25.344 7.570 C 25.344 6.957 24.848 6.457 24.234 6.457 L 19.133 6.457 Z M 19.133 0.023 M 59.043 0.000 L 42.699 0.000 C 40.586 0.000 38.871 1.711 38.871 3.824 L 38.871 23.996 L 45.305 23.996 L 45.305 17.117 L 56.438 17.117 L 56.438 23.996 L 62.867 23.996 L 62.867 3.824 C 62.867 1.711 61.156 0.000 59.043 0.000 M 56.438 10.684 L 45.305 10.684 L 45.305 6.430 L 56.438 6.430 Z M 56.438 10.684 M 69.453 23.996 L 75.887 23.996 L 75.887 17.117 L 93.449 17.117 L 93.449 10.684 L 75.887 10.684 L 75.887 6.434 L 93.449 6.434 L 93.449 0.000 L 69.453 0.000 Z M 69.453 23.996 M 124.105 13.320 L 124.105 3.793 C 124.105 1.695 122.410 0.000 120.312 0.000 L 100.109 0.000 L 100.109 23.996 L 106.543 23.996 L 106.543 17.117 L 110.723 17.117 C 111.891 17.117 112.961 17.754 113.516 18.777 L 116.340 23.988 L 123.824 23.988 L 120.098 17.117 L 120.309 17.117 C 122.406 17.117 124.105 15.418 124.105 13.320 M 117.672 10.684 L 106.543 10.684 L 106.543 6.430 L 117.672 6.430 Z M 117.672 10.684 M 130.645 23.996 L 137.078 23.996 L 137.078 0.000 L 130.645 0.000 Z M 130.645 23.996 M 147.465 0.000 C 145.371 0.000 143.668 1.699 143.668 3.797 L 143.668 20.199 C 143.668 22.297 145.371 23.996 147.465 23.996 L 163.863 23.996 C 165.965 23.996 167.668 22.293 167.668 20.191 L 167.668 16.148 L 161.234 16.148 L 161.234 17.016 C 161.234 17.316 160.988 17.562 160.684 17.562 L 151.363 17.562 C 150.668 17.562 150.102 16.996 150.102 16.301 L 150.102 7.695 C 150.102 6.996 150.668 6.434 151.363 6.434 L 160.684 6.434 C 160.988 6.434 161.234 6.676 161.234 6.980 L 161.234 7.848 L 167.668 7.848 L 167.668 3.805 C 167.668 1.703 165.965 0.000 163.863 0.000 Z M 147.465 0.000 M 194.238 0.000 L 177.852 0.000 C 175.750 0.000 174.047 1.703 174.047 3.805 L 174.047 20.191 C 174.047 22.293 175.750 23.996 177.852 23.996 L 194.238 23.996 C 196.340 23.996 198.043 22.293 198.043 20.191 L 198.043 3.805 C 198.043 1.703 196.340 0.000 194.238 0.000 M 191.609 16.199 C 191.609 16.953 191.000 17.562 190.246 17.562 L 181.844 17.562 C 181.090 17.562 180.477 16.953 180.477 16.199 L 180.477 7.797 C 180.477 7.043 181.090 6.434 181.844 6.434 L 190.246 6.434 C 191.000 6.434 191.609 7.043 191.609 7.797 Z M 191.609 16.199");
+function drawWordmark(g,cx,cy,h,n=7){
+  const k=h/LOGO_H, w=(n<7?MAFRI_W:LOGO_W);
+  g.save();g.translate(cx-w*k/2,cy-h/2);g.scale(k,k);
+  if(n<7){g.beginPath();g.rect(-1,-1,w+1,LOGO_H+2);g.clip();}
+  if(!g.fillStyle)g.fillStyle=LOGO_COLOR;
+  g.fill(LOGO_PATH);g.restore();
+}
+function tapeTex(h){
+  const W=1400,H=Math.max(64,Math.round(W*h/TAPE_TILE));
+  const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');
+  g.fillStyle='#ece5d2';g.fillRect(0,0,W,H);
+  const r=rnd(3);for(let i=0;i<1600;i++){g.fillStyle=`rgba(255,255,255,${.12*r()})`;g.fillRect(r()*W,r()*H,2+r()*6,1);}
+  const lh=Math.min(H*.36,W/(WORD_W*1.22));
+  g.fillStyle=LOGO_COLOR;
+  drawWordmark(g,W/2,H/2,lh);
+  const t=new THREE.CanvasTexture(c);t.wrapS=THREE.RepeatWrapping;t.encoding=THREE.sRGBEncoding;t.anisotropy=MAXANI;return t;
+}
+function tapeMat(){return new THREE.MeshStandardMaterial({roughness:.45,metalness:0,side:THREE.DoubleSide});}
+/* Cinta sobre una cara lateral (puede ser inclinada): de (x1,y1) abajo a (x2,y2) arriba, a lo largo de todo el panel.
+   side=-1: cara que mira a la izquierda; side=+1: cara que mira a la derecha. */
+function tapeSeg(mat,x1,y1,x2,y2,side){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+  const nx=side<0?-dy/len:dy/len, ny=side<0?dx/len:-dx/len, o=.4;
+  const ax=x1+nx*o, ay=y1+ny*o, bx=x2+nx*o, by=y2+ny*o;
+  const g=new THREE.BufferGeometry();
+  const us=side<0?-1:1, U=L/TAPE_TILE;
+  g.setAttribute('position',new THREE.Float32BufferAttribute([ax,ay,0, bx,by,0, ax,ay,-L, bx,by,-L],3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute([0,0, 0,1, us*U,0, us*U,1],2));
+  g.setIndex([0,2,1, 1,2,3]);g.computeVertexNormals();
+  const t=tapeTex(len);const m=new THREE.Mesh(g,mat.clone());m.material.map=t;m.receiveShadow=true;return m;
+}
+if(document.fonts&&document.fonts.load)document.fonts.load('700 80px Archivo').then(()=>{if(product==="roof"){build();setView(curView);}}).catch(()=>{});
+
+let panel=null, panel2=null, showUnion=false, join=0, joinTarget=0;
+/* rig: gira el panel 180° sobre su eje largo para ver la otra cara */
+const rig=new THREE.Group(), inner=new THREE.Group(), hgrp=new THREE.Group();rig.add(inner);inner.add(hgrp);scene.add(rig);
+const hTot=()=>product==="panel"?T:T+RH;
+function placeRig(){
+  const e=flipT*flipT*(3-2*flipT), H=hTot();
+  inner.position.y=-H/2;
+  rig.rotation.z=Math.PI*e;
+  rig.position.y=H/2+Math.sin(Math.PI*e)*(H*.5+60);
+}
+/* Posición del segundo panel: separado (j=0) o encajado (j=1). */
+function place2(){
+  if(!panel2)return;
+  const e=join*join*(3-2*join);
+  if(product==="panel"&&straight()){
+    /* 1) el perfil H se desliza sobre el borde del primer panel; 2) el segundo panel entra en la otra ranura */
+    const s=v=>v*v*(3-2*v),a=s(Math.min(1,join*2)),b=s(Math.max(0,join*2-1));
+    hgrp.position.set(JJ+70*(1-a),0,0); panel2.position.set(JX1+150*(1-b),0,0);
+  }
+  else if(product==="panel"){const x0=PW+GAP+40,x1=PW+GAP;panel2.position.set(x0+(x1-x0)*e,0,0);}
+  else{panel2.position.set(RW+45*(1-e),70*(1-e)*(1-e),0);}
+}
+function build(){
+  if(panel){inner.remove(panel,panel2);panel.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
+  panel=new THREE.Group();
+  if(product==="panel") buildPanel(panel); else buildRoof(panel);
+  panel2=panel.clone();
+  buildH();
+  place2();
+  panel2.visible=showUnion; hgrp.visible=showUnion;
+  inner.add(panel,panel2);placeRig();
+  const P=PRODUCTS[product],[F1,F2]=faces(),cal=c=>c.toFixed(2).replace('.',',')+' mm';
+  document.getElementById('ttl').textContent=P.name;
+  document.getElementById('spec').textContent=`${P.faces[0].short}: ${FIN[F1.f].short} ${cal(F1.c)} · ${P.faces[1].short}: ${FIN[F2.f].short} ${cal(F2.c)} · ${P.spec(T)}`;
+}
+
+function VIEWS(k){
+  if(product==="panel"){const H=PW/2;return{
+    cat:[[260,330,950],[60,0,-520]],
+    cut:[[0,160,1250],[0,T/2,-200]],
+    macho:[[H+T*.8,T*1.3,T*3.5],[H+T*.05,T/2,0]],
+    hembra:[[-H-T*.8,T*1.3,T*3.5],[-H-T*.05,T/2,0]],
+    union:[[H+20,T/2,T*40+800],[H+20,T/2,0],6]}[k]}
+  const H=RW/2,y=(T+RH)/2;return{
+    cat:[[220,380,1000],[40,0,-520]],
+    cut:[[0,200,1300],[0,y,-200]],
+    traslape:[[H+60,T+RH+80,320],[H-15,y+10,0]],
+    union:[[H,420,1500],[H,y,-300]]}[k];
+}
+function setView(k){
+  curView=k; showUnion=(k==="union"||k==="traslape");
+  if(panel2)panel2.visible=showUnion; hgrp.visible=showUnion;
+  join=0; joinTarget=0; place2();
+  document.getElementById('joinGroup').hidden=!showUnion;
+  document.getElementById('joinBtn').textContent=product==='roof'?'Traslape':'Encaje';
+  applyView(k);
+}
+/* Al voltear el panel (giro de 180° sobre su eje largo) los extremos cambian de lado:
+   la cámara se refleja en x para seguir mirando el mismo machihembrado o traslape. */
+function applyView(k){
+  const[p,t,f]=VIEWS(k), m=flipTarget?-1:1;
+  cam.fov=f||30;cam.updateProjectionMatrix();
+  cam.position.set(p[0]*m,p[1],p[2]);controls.target.set(t[0]*m,t[1],t[2]);controls.update();
+}
+
+/* ---------- controles ---------- */
+function btns(id,items,cur,cb){
+  const el=document.getElementById(id);el.innerHTML="";
+  for(const[k,lab]of items){
+    const b=document.createElement('button');b.textContent=lab;b.id=id+'-'+k;
+    if(cur!==null)b.setAttribute('aria-pressed',String(k===cur));
+    b.onclick=()=>cb(k);el.appendChild(b);
+  }
+}
+function renderControls(){
+  const P=PRODUCTS[product];
+  const box=document.getElementById('fin');box.innerHTML='';
+  document.getElementById('custLabel').textContent='Personaliza tu '+P.what;
+  P.faces.forEach((fd,i)=>{
+    const F=faces()[i],row=document.createElement('div');row.className='face';
+    const lab=document.createElement('label');lab.textContent=fd.lab;lab.htmlFor='face'+i+'-fin';
+    const sf=document.createElement('select');sf.id='face'+i+'-fin';
+    fd.opts.forEach(k=>sf.add(new Option(FIN[k].lab,k,false,k===F.f)));
+    const sc=document.createElement('select');sc.id='face'+i+'-cal';sc.setAttribute('aria-label','Calibre de '+fd.lab);
+    const fillCal=()=>{sc.innerHTML='';const cs=FIN[F.f].cal;if(!cs.includes(F.c))F.c=cs.includes(.5)?.5:cs[0];
+      cs.forEach(c=>sc.add(new Option((F.f==='prfv'?'Espesor ':'Calibre ')+c.toFixed(2)+' mm',c,false,c===F.c)));sc.disabled=cs.length<2;};
+    fillCal();
+    sf.onchange=()=>{F.f=sf.value;fillCal();build();updateMode();};
+    sc.onchange=()=>{F.c=+sc.value;build();};
+    row.append(lab,sf,sc);box.appendChild(row);
+  });
+  const fb=document.getElementById('flipBtn');
+  fb.textContent=flipTarget?('Ver '+P.faces[0].short.toLowerCase()):('Ver '+(product==='panel'?'cara ':'lámina ')+P.faces[1].short.toLowerCase());
+  const th=document.getElementById('thk'); th.innerHTML='';
+  const TL=P.thick, mn=TL[0], mx=TL[TL.length-1];
+  if(!TL.includes(T)){T=TL.reduce((a,b)=>Math.abs(b-T)<Math.abs(a-T)?b:a);sel[product].t=T;}
+  const rg=document.createElement('input'); rg.type='range'; rg.id='thk-range'; rg.min=0; rg.max=TL.length-1; rg.step=1; rg.value=TL.indexOf(T);
+  rg.setAttribute('aria-label','Espesor en mm');
+  const out=document.createElement('output'); out.id='thk-out'; out.textContent=T+' mm';
+  const ends=document.createElement('span'); ends.className='range-ends'; ends.textContent=`${mn}–${mx} mm`;
+  rg.setAttribute('aria-valuetext',T+' mm');
+  rg.oninput=()=>{T=TL[+rg.value]; sel[product].t=T; out.textContent=T+' mm'; rg.setAttribute('aria-valuetext',T+' mm'); build();};
+  rg.onchange=()=>setView(curView);
+  th.append(rg,out,ends);
+  updateMode(true);
+}
+/* Vistas y aviso según el tipo de unión (con PRFV no hay macho/hembra: la unión es con perfil H) */
+function updateMode(quiet){
+  const P=PRODUCTS[product], st=straight();
+  let v=Object.entries(P.views);
+  if(st)v=v.filter(([k])=>!prfvBoth()||(k!=='macho'&&k!=='hembra')).map(([k,l])=>[k,k==='union'?'Unión con perfil H':l]);
+  btns('vw',v,null,k=>setView(k));
+  document.getElementById('prfvNote').hidden=!st;
+  if(!quiet)setView(prfvBoth()&&(curView==='macho'||curView==='hembra')?'cat':curView);
+}
+document.querySelectorAll('[data-p]').forEach(tab=>tab.onclick=()=>{
+  product=tab.dataset.p; T=sel[product].t; flipT=flipTarget=0;
+  document.querySelectorAll('[data-p]').forEach(x=>x.setAttribute('aria-selected',String(x===tab)));
+  renderControls(); build(); setView('cat');
+});
+
+function resize(){const r=view.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(view);
+
+document.getElementById('shot').onclick=()=>{
+  const prevBg=scene.background.clone(), prevOp=ground.material.opacity, prevU=panel2.visible;
+  const pp=cam.position.clone(), pt=controls.target.clone(), pa=cam.aspect, pf=cam.fov;
+  const r=view.getBoundingClientRect();
+  panel2.visible=false; const prevHv=hgrp.visible; hgrp.visible=false;
+  /* acabados blancos (lámina RAL 9010 y PRFV) sobre gris medio Cool Gray 6 C; aceros y galvanizado sobre blanco */
+  const vis=faces()[flipTarget?1:0].f, blanco=['ral','prfv','ralr'].includes(vis);
+  scene.background=new THREE.Color(blanco?0xA7A8AA:0xFFFFFF); ground.material.opacity=blanco?.32:.22;
+  renderer.setPixelRatio(1); renderer.setSize(2400,1080,false);
+  cam.aspect=2400/1080; cam.fov=24;
+  if(product==="panel") cam.position.set(0,560,2550); else cam.position.set(0,640,2600);
+  controls.target.set(0,-10,-480);
+  cam.lookAt(controls.target); cam.updateProjectionMatrix();
+  renderer.render(scene,cam);
+  document.getElementById('shotImg').src=brandShot(renderer.domElement);
+  scene.background=prevBg; ground.material.opacity=prevOp; panel2.visible=prevU; hgrp.visible=prevHv;
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(r.width,r.height,false);
+  cam.aspect=pa; cam.fov=pf; cam.position.copy(pp); controls.target.copy(pt); cam.updateProjectionMatrix();
+  document.getElementById('shotBox').hidden=false;
+};
+document.getElementById('shotClose').onclick=()=>document.getElementById('shotBox').hidden=true;
+
+/* ---------- Fichas técnicas 2024 (MAFRIWALL = panel de pared, MAFRITECH = cubierta) ---------- */
+const SPECS={
+  panel:{name:'WALL',title:'Ficha técnica MAFRIWALL',
+    desc:'Panel sándwich autoportante con núcleo de poliuretano (PUR) inyectado de 40 kg/m³ y conductividad térmica de 0,021 W/m·K, revestido por ambas caras con lámina metálica o PRFV. Unión longitudinal machihembrada. Aplicación: fachadas, cerramientos, techos y revestimiento de cámaras frigoríficas y ambientes de atmósfera controlada. Espesores de 40 a 125 mm; ancho útil de 1000 o 1160 mm.',
+    t:[40,50,60,80,100,125],
+    pur:{peso:[9.08,9.56,10.04,10.99,11.94,13.13],apoyo:[2.50,2.70,3.00,3.50,3.80,4.10],dens:'40 kg/m³'},
+    pir:{peso:[9.23,9.74,10.25,11.28,12.30,13.59],apoyo:[2.50,2.70,3.00,3.50,3.80,4.10],dens:'42 kg/m³'},
+    ancho:'1000 mm y 1160 mm',
+    finishes:[['Lámina prepintada blanca','Lámina de acero galvanizado prepintado blanco, RAL 9010. Calibre 0.40 · 0.45 · 0.50 · 0.60 mm.'],
+              ['Acero inoxidable','Lámina de acero inoxidable AISI 430 o AISI 304. Calibre 0.50 mm.'],
+              ['PRFV','Lámina de resinas de poliéster reforzada con fibra de vidrio, 2.00 mm de espesor, color blanco RAL 9010.']]},
+  roof:{name:'TECH',title:'Ficha técnica MAFRITECH',
+    desc:'Panel sándwich para cubiertas con núcleo de poliuretano (PUR) inyectado de 40 kg/m³ y conductividad térmica de 0,021 W/m·K. Cara exterior en lámina trapezoidal de acero galvanizado, natural o prepintado RAL 9010. Unión longitudinal por traslape. Espesores de 30 a 125 mm; ancho útil de 1000 mm.',
+    t:[30,40,50,60,80,100,125],
+    pur:{peso:[9.00,9.60,10.20,10.80,12.00,13.15,14.60],apoyo:[3.10,3.30,3.50,3.70,4.00,4.00,4.00],dens:'40 kg/m³'},
+    pir:{peso:[9.05,9.70,10.30,10.90,12.10,13.30,14.80],apoyo:[3.10,3.30,3.50,3.70,4.00,4.00,4.00],dens:'42 kg/m³'},
+    ancho:'1000 mm',
+    finishes:[['Lámina prepintada blanca','Lámina de acero galvanizado prepintado blanco, RAL 9010. Calibre 0.40 · 0.45 · 0.50 · 0.60 mm.'],
+              ['Acero galvanizado natural','Lámina de acero galvanizado natural. Calibre 0.40 · 0.45 · 0.50 · 0.60 mm.']]}
+};
+const CORE={
+  pur:{label:'PUR · Poliuretano',comp:'120 kPa mínimo',cond:'0,021 W/m·K',fuego:'Contiene retardantes a la llama; clasificado como R3 o NR.'},
+  pir:{label:'PIR · Poliisocianurato',comp:'120 kPa mínimo',cond:'0,021 W/m·K',fuego:'Contiene en su formulación agentes retardantes a la llama; clasificado como R1.'}
+};
+const f2=v=>v.toFixed(2);
+function coreBlock(S,key){
+  const d=S[key],C=CORE[key];
+  const th=S.t.map(t=>`<th class="${t===T?'on':''}">${t}</th>`).join('');
+  const row=(lab,arr,fmt)=>`<tr><td>${lab}</td>${arr.map((v,i)=>`<td class="${S.t[i]===T?'on':''}">${fmt(v)}</td>`).join('')}</tr>`;
+  return `<section><h3>${C.label}</h3>
+    <div class="tbl"><table><thead><tr><th>Espesor [mm]</th>${th}</tr></thead><tbody>
+      ${row('Peso [kg]',d.peso,f2)}${row('Separación entre apoyos [m]',d.apoyo,f2)}
+    </tbody></table></div>
+    <dl class="kv" style="margin-top:10px">
+      <dt>Densidad</dt><dd>${d.dens}</dd>
+      <dt>Ancho útil</dt><dd>${S.ancho}</dd>
+      <dt>Resistencia a la compresión</dt><dd>${C.comp}</dd>
+      <dt>Conductividad térmica</dt><dd>${C.cond}</dd>
+      <dt>Resistencia al fuego</dt><dd>${C.fuego}</dd>
+    </dl></section>`;
+}
+function openSpec(){
+  const S=SPECS[product];
+  const lc=document.getElementById('specLogo'),h=30,g=lc.getContext('2d');
+  /* submarca: “MAFRI” con las letras del logotipo + nombre del producto en la tipografía corporativa */
+  const mw=Math.ceil(h/LOGO_H*MAFRI_W)+4;
+  g.font=`500 ${h*1.12}px Rektorat, Saira, Arial, sans-serif`;
+  const tw=Math.ceil(g.measureText(S.name).width);
+  lc.width=mw+tw+10;lc.height=h+8;lc.style.height='30px';
+  g.clearRect(0,0,lc.width,lc.height);g.fillStyle='#fff';drawWordmark(g,mw/2,lc.height/2,h,5);
+  g.font=`500 ${h*1.12}px Rektorat, Saira, Arial, sans-serif`;g.textBaseline='middle';g.fillStyle='#fff';g.fillText(S.name,mw+4,lc.height/2+1);
+  lc.setAttribute('aria-label','MAFRI'+S.name);
+  paintLogo('specBy','#fff',12);document.getElementById('specBy').style.height='12px';
+  const inCat=S.t.includes(T);
+  document.getElementById('specBody').innerHTML=`
+    <h2 id="specTitle">${S.title}</h2>
+    <p class="desc">${S.desc}</p>
+    <p class="note">${inCat?`Resaltado: el espesor que tienes seleccionado (${T} mm).`:`El espesor seleccionado (${T} mm) no está en la ficha; los espesores de catálogo son ${S.t.join(', ')} mm.`}</p>
+    <div class="grid2">${coreBlock(S,'pur')}</div>
+    <section><h2>Acabados</h2><div class="finishes">${S.finishes.map(([a,b])=>`<div class="finish"><b>${a}</b><span>${b}</span></div>`).join('')}</div></section>`;
+  document.getElementById('specBox').hidden=false;
+  document.getElementById('specClose').focus();
+}
+document.getElementById('specBtn').onclick=openSpec;
+document.getElementById('specClose').onclick=()=>{document.getElementById('specBox').hidden=true;document.getElementById('specBtn').focus();};
+document.getElementById('specBox').addEventListener('click',e=>{if(e.target.id==='specBox')document.getElementById('specClose').click();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('specBox').hidden)document.getElementById('specClose').click();});
+
+/* Imagen de catálogo con la diagramación del manual: banda azul con curva, web abajo a la izquierda, logotipo abajo a la derecha */
+function brandShot(src){
+  const W=src.width,H=src.height,BH=Math.round(W*.07),CH=Math.round(BH*.55);
+  const c=document.createElement('canvas');c.width=W;c.height=H+BH;const g=c.getContext('2d');
+  g.drawImage(src,0,0);
+  g.fillStyle='#0077C8';g.fillRect(0,H,W,BH);
+  const cw=CH*4.2;g.beginPath();g.moveTo(0,H-CH);g.bezierCurveTo(cw*.18,H-CH,cw*.32,H-CH*.5,cw*.46,H-CH*.2);
+  g.bezierCurveTo(cw*.6,H,cw*.75,H,cw,H);g.lineTo(0,H);g.closePath();g.fill();
+  const pad=Math.round(W*.04);
+  g.fillStyle='#fff';g.font=`400 ${Math.round(BH*.2)}px Roboto, Arial, sans-serif`;g.textBaseline='middle';
+  g.fillText('www.mafrico.com',pad,H+BH/2);
+  const lh=Math.round(BH*.26);g.fillStyle='#fff';drawWordmark(g,W-pad-lh*WORD_W/2,H+BH/2,lh);
+  return c.toDataURL('image/png');
+}
+function paintLogo(id,color,h){
+  const c=document.getElementById(id);if(!c)return;
+  c.height=Math.ceil(h)+4;c.width=Math.ceil(h*WORD_W)+4;
+  const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);g.fillStyle=color;drawWordmark(g,c.width/2,c.height/2,h);
+}
+paintLogo('brandLogo','#fff',44);
+paintLogo('bandLogo','#fff',36);
+
+renderControls(); build(); resize(); setView('cat');
+document.getElementById('joinBtn').onclick=()=>{
+  joinTarget=joinTarget?0:1;
+  document.getElementById('joinBtn').textContent=joinTarget?'Separar':(product==='roof'?'Traslape':'Encaje');
+};
+document.getElementById('prfvSim').onclick=()=>{
+  setView('union'); joinTarget=1; document.getElementById('joinBtn').textContent='Separar';
+  document.getElementById('view').scrollIntoView({behavior:'smooth',block:'center'});
+};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+document.getElementById('flipBtn').onclick=()=>{flipTarget=flipTarget?0:1;renderControls();applyView(curView);};
+(function loop(){
+  if(flipT!==flipTarget){flipT=reduce?flipTarget:flipT+Math.sign(flipTarget-flipT)*Math.min(.025,Math.abs(flipTarget-flipT));placeRig();}
+  if(join!==joinTarget){join=reduce?joinTarget:join+Math.sign(joinTarget-join)*Math.min(.02,Math.abs(joinTarget-join));place2();}
+  controls.update();renderer.render(scene,cam);requestAnimationFrame(loop)})();
+</script>
+
+</body>
+</html>
